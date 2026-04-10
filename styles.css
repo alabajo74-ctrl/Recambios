@@ -146,6 +146,10 @@ button {
   min-height: 370px;
 }
 
+#economic-cards {
+  margin-bottom: 0.9rem;
+}
+
 canvas {
   width: 100%;
   margin-top: 0.5rem;
