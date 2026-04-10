@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visor Excel Interactivo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Visor Excel Interactivo</h1>
+      <p class="subtitle">
+        Arrastra un archivo <strong>.xlsx</strong> o <strong>.xls</strong> para analizar sus datos clave.
+      </p>
+
+      <section id="drop-zone" class="drop-zone" aria-label="Zona para arrastrar Excel">
+        <p>📁 Suelta aquí tu Excel o haz clic para seleccionarlo</p>
+        <input id="file-input" type="file" accept=".xlsx,.xls" />
+      </section>
+
+      <section id="summary" class="panel hidden">
+        <h2>Resumen general</h2>
+        <div id="summary-cards" class="cards"></div>
+      </section>
+
+      <section id="columns" class="panel hidden">
+        <h2>Columnas más relevantes</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Columna</th>
+                <th>Tipo detectado</th>
+                <th>Completitud</th>
+                <th>Dato destacado</th>
+              </tr>
+            </thead>
+            <tbody id="columns-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="preview" class="panel hidden">
+        <h2>Vista previa (primeras 10 filas)</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead id="preview-head"></thead>
+            <tbody id="preview-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
