@@ -1,12 +1,24 @@
 const dropZone = document.getElementById("drop-zone");
 const fileInput = document.getElementById("file-input");
 const summarySection = document.getElementById("summary");
+const filterSection = document.getElementById("filters");
 const columnsSection = document.getElementById("columns");
+const chartsSection = document.getElementById("charts");
 const previewSection = document.getElementById("preview");
 const summaryCards = document.getElementById("summary-cards");
 const columnsBody = document.getElementById("columns-body");
 const previewHead = document.getElementById("preview-head");
 const previewBody = document.getElementById("preview-body");
+const filterColumn = document.getElementById("filter-column");
+const filterQuery = document.getElementById("filter-query");
+const clearFilters = document.getElementById("clear-filters");
+const filterResult = document.getElementById("filter-result");
+const chartColumn = document.getElementById("chart-column");
+const chartCanvas = document.getElementById("chart-canvas");
+
+let originalRows = [];
+let filteredRows = [];
+let headers = [];
 
 dropZone.addEventListener("dragover", (event) => {
   event.preventDefault();
@@ -31,6 +43,17 @@ fileInput.addEventListener("change", (event) => {
   if (file) {
     processFile(file);
   }
+});
+
+filterColumn.addEventListener("change", applyFilters);
+filterQuery.addEventListener("input", applyFilters);
+clearFilters.addEventListener("click", () => {
+  filterColumn.value = "__all";
+  filterQuery.value = "";
+  applyFilters();
+});
+chartColumn.addEventListener("change", () => {
+  drawQuickChart(filteredRows, chartColumn.value);
 });
 
 async function processFile(file) {
@@ -151,4 +174,13 @@ function formatNumber(number) {
   return Number(number).toLocaleString("es-ES", {
     maximumFractionDigits: 2,
   });
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
