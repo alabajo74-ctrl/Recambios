@@ -20,6 +20,9 @@ Aplicación web (HTML + JS) para arrastrar un archivo Excel y extraer rápidamen
 - Gráficos automáticos de negocio:
   - Barras por almacén (top 8).
   - Facturable vs no facturable (gráfico circular).
+- Gráficos de insights relevantes:
+  - Completitud por columna (top 8).
+  - Distribución de tipos de columna (numérica, texto/mixta, vacía).
 - Gráfico rápido adicional (barras): top 8 valores más frecuentes de cualquier columna seleccionada.
 - Vista previa con las primeras 10 filas filtradas.
 
