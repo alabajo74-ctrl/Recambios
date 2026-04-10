@@ -2,6 +2,7 @@ const dropZone = document.getElementById("drop-zone");
 const fileInput = document.getElementById("file-input");
 const summarySection = document.getElementById("summary");
 const filterSection = document.getElementById("filters");
+const insightsSection = document.getElementById("insights");
 const columnsSection = document.getElementById("columns");
 const chartsSection = document.getElementById("charts");
 const previewSection = document.getElementById("preview");
@@ -21,6 +22,8 @@ const warehouseFilter = document.getElementById("warehouse-filter");
 const billableFilter = document.getElementById("billable-filter");
 const warehouseCanvas = document.getElementById("warehouse-canvas");
 const billableCanvas = document.getElementById("billable-canvas");
+const completenessCanvas = document.getElementById("completeness-canvas");
+const typesCanvas = document.getElementById("types-canvas");
 
 let originalRows = [];
 let filteredRows = [];
@@ -92,11 +95,12 @@ async function processFile(file) {
     buildBusinessSelectors(originalRows);
     renderColumnAnalysis(filteredRows, headers);
     renderPreview(filteredRows, headers);
+    renderInsights(filteredRows, headers);
     drawQuickChart(filteredRows, headers[0]);
     renderBusinessCharts(filteredRows);
     updateFilterMeta();
 
-    [summarySection, filterSection, columnsSection, chartsSection, previewSection].forEach(
+    [summarySection, insightsSection, filterSection, columnsSection, chartsSection, previewSection].forEach(
       (section) => section.classList.remove("hidden"),
     );
 
@@ -206,6 +210,7 @@ function applyFilters() {
 
   renderColumnAnalysis(filteredRows, headers);
   renderPreview(filteredRows, headers);
+  renderInsights(filteredRows, headers);
   drawQuickChart(filteredRows, chartColumn.value);
   renderBusinessCharts(filteredRows);
   updateFilterMeta();
@@ -227,8 +232,29 @@ function renderBusinessCharts(rows) {
 
 function renderColumnAnalysis(rows, headersList) {
   columnsBody.innerHTML = "";
+  const columnAnalysis = computeColumnAnalysis(rows, headersList);
 
-  headersList.forEach((header) => {
+  columnAnalysis.forEach(({ header, type, completeness, highlight }) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${escapeHtml(header)}</td>
+      <td>${type}</td>
+      <td><span class="ok">${completeness.toFixed(1)}%</span></td>
+      <td>${escapeHtml(highlight)}</td>
+    `;
+
+    columnsBody.appendChild(row);
+  });
+}
+
+function renderInsights(rows, headersList) {
+  const analysis = computeColumnAnalysis(rows, headersList);
+  drawCompletenessChart(analysis);
+  drawColumnTypesChart(analysis);
+}
+
+function computeColumnAnalysis(rows, headersList) {
+  return headersList.map((header) => {
     const values = rows.map((row) => row[header]);
     const filledValues = values.filter((value) => value !== null && value !== "");
     const completeness = values.length ? (filledValues.length / values.length) * 100 : 0;
@@ -238,9 +264,11 @@ function renderColumnAnalysis(rows, headersList) {
       .filter((value) => !Number.isNaN(value));
 
     const type =
-      numericValues.length > filledValues.length * 0.7
-        ? "Numérica"
-        : "Texto / Mixta";
+      !filledValues.length
+        ? "Vacía"
+        : numericValues.length > filledValues.length * 0.7
+          ? "Numérica"
+          : "Texto / Mixta";
 
     let highlight = "-";
     if (type === "Numérica" && numericValues.length) {
@@ -259,15 +287,7 @@ function renderColumnAnalysis(rows, headersList) {
       highlight = `Más frecuente: "${topValue}" (${topCount})`;
     }
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${escapeHtml(header)}</td>
-      <td>${type}</td>
-      <td><span class="ok">${completeness.toFixed(1)}%</span></td>
-      <td>${escapeHtml(highlight)}</td>
-    `;
-
-    columnsBody.appendChild(row);
+    return { header, type, completeness, highlight };
   });
 }
 
@@ -393,6 +413,81 @@ function drawBillableChart(rows, columnName) {
   context.font = "13px sans-serif";
   context.fillText(`Sí: ${yesCount} (${Math.round((yesCount / total) * 100)}%)`, 22, height - 52);
   context.fillText(`No: ${noCount} (${Math.round((noCount / total) * 100)}%)`, 22, height - 30);
+}
+
+function drawCompletenessChart(analysis) {
+  const context = completenessCanvas.getContext("2d");
+  const rows = analysis
+    .map((entry) => [entry.header, Number(entry.completeness.toFixed(1))])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+
+  if (!rows.length) {
+    drawEmptyState(context, completenessCanvas, "Sin columnas para analizar.");
+    return;
+  }
+
+  drawHorizontalBars(context, completenessCanvas.width, rows, "Completitud (%)");
+}
+
+function drawColumnTypesChart(analysis) {
+  const context = typesCanvas.getContext("2d");
+  const width = typesCanvas.width;
+  const height = typesCanvas.height;
+  context.clearRect(0, 0, width, height);
+
+  const totals = {
+    "Numérica": 0,
+    "Texto / Mixta": 0,
+    "Vacía": 0,
+  };
+
+  analysis.forEach((entry) => {
+    totals[entry.type] = (totals[entry.type] || 0) + 1;
+  });
+
+  const entries = Object.entries(totals).filter(([, count]) => count > 0);
+  const grandTotal = entries.reduce((acc, [, count]) => acc + count, 0);
+
+  if (!grandTotal) {
+    drawEmptyState(context, typesCanvas, "Sin tipos detectados.");
+    return;
+  }
+
+  const colors = {
+    "Numérica": "#22d3ee",
+    "Texto / Mixta": "#a78bfa",
+    "Vacía": "#64748b",
+  };
+
+  let startAngle = -Math.PI / 2;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = 92;
+
+  entries.forEach(([type, count]) => {
+    const angle = (count / grandTotal) * Math.PI * 2;
+    context.beginPath();
+    context.moveTo(centerX, centerY);
+    context.fillStyle = colors[type];
+    context.arc(centerX, centerY, radius, startAngle, startAngle + angle);
+    context.fill();
+    startAngle += angle;
+  });
+
+  context.fillStyle = "#e2e8f0";
+  context.font = "bold 13px sans-serif";
+  context.fillText("Tipos detectados", 16, 24);
+  context.font = "12px sans-serif";
+
+  entries.forEach(([type, count], index) => {
+    const y = height - 64 + index * 18;
+    const pct = Math.round((count / grandTotal) * 100);
+    context.fillStyle = colors[type];
+    context.fillRect(16, y - 9, 10, 10);
+    context.fillStyle = "#e2e8f0";
+    context.fillText(`${type}: ${count} (${pct}%)`, 32, y);
+  });
 }
 
 function drawHorizontalBars(context, width, entries, title) {

@@ -142,6 +142,10 @@ button {
   padding: 0.75rem;
 }
 
+.insights-grid article:first-child {
+  min-height: 370px;
+}
+
 canvas {
   width: 100%;
   margin-top: 0.5rem;
