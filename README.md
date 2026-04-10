@@ -1,7 +1,10 @@
 # Visor Excel Interactivo
 
-Aplicación web (HTML + JS) para arrastrar un archivo Excel y extraer rápidamente los datos más relevantes de la primera hoja:
+Aplicación web (HTML + JS) para arrastrar un archivo Excel y extraer rápidamente los datos más relevantes de la primera hoja.
 
+## Funcionalidades
+
+- Carga de archivo por drag & drop o selector (`.xlsx` y `.xls`).
 - Resumen general (archivo, hoja, total de filas y columnas).
 - Análisis por columna:
   - Tipo detectado (numérica o texto/mixta).
@@ -9,13 +12,22 @@ Aplicación web (HTML + JS) para arrastrar un archivo Excel y extraer rápidamen
   - Dato destacado:
     - Numérica: mínimo, máximo y promedio.
     - Texto/mixta: valor más frecuente.
-- Vista previa con las primeras 10 filas.
+- Filtros interactivos:
+  - Filtro por columna específica o por todas.
+  - Búsqueda por texto/valor.
+  - Filtro dedicado por almacén (si existe columna con "almacén").
+  - Filtro dedicado facturable/no facturable (si existe columna con "facturable").
+- Gráficos automáticos de negocio:
+  - Barras por almacén (top 8).
+  - Facturable vs no facturable (gráfico circular).
+- Gráfico rápido adicional (barras): top 8 valores más frecuentes de cualquier columna seleccionada.
+- Vista previa con las primeras 10 filas filtradas.
 
 ## Uso
 
 1. Abre `index.html` en tu navegador.
 2. Arrastra un `.xlsx` o `.xls` al área central (o haz clic para elegir archivo).
-3. Revisa automáticamente el resumen y los indicadores relevantes.
+3. Aplica filtros por columna/valor, por almacén y por facturable para actualizar análisis y gráficos.
 
 ## Nota
 

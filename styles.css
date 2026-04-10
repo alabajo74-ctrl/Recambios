@@ -26,7 +26,8 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0 0 0.75rem;
 }
 
@@ -89,6 +90,66 @@ h2 {
   font-size: 1.2rem;
 }
 
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.business-filters {
+  margin-top: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, white, transparent 85%);
+  padding: 0.55rem 0.65rem;
+  background: color-mix(in srgb, black, transparent 70%);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0.75rem 0 0;
+}
+
+.charts-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 2fr 1fr;
+}
+
+.charts-grid article {
+  background: color-mix(in srgb, black, transparent 84%);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+canvas {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: color-mix(in srgb, black, transparent 78%);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, white, transparent 90%);
+}
+
 .table-wrapper {
   overflow-x: auto;
 }
@@ -112,4 +173,12 @@ td .ok {
 
 .hidden {
   display: none;
+}
+
+@media (max-width: 860px) {
+  .filters-grid,
+  .business-filters,
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
